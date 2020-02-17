@@ -27,13 +27,17 @@ snp.boxplot(x='Pclass', y='Age', data=train_data, ax=axes[1][1])
 
 # assign dummies variable for male and Embarked as our model can read them as an input
 sex = pd.get_dummies(data=train_data['Sex'], drop_first=True)
+sex_test = pd.get_dummies(data=test_data['Sex'], drop_first=True)
 embarked = pd.get_dummies(data=train_data['Embarked'], drop_first=True)
+embarked_test = pd.get_dummies(data=test_data['Embarked'], drop_first=True)
 train_data = pd.concat([train_data, sex, embarked], axis=1)
+test_data = pd.concat([test_data, sex_test, embarked_test], axis=1)
 
 # since we have semi-acceptance data as we have null values present.
 # Here we will clear and refine data
 # will drop cabin feature from train and test data as it contains many null values.
 train_data.drop(['Cabin','Name', 'PassengerId', 'Sex', 'Embarked', 'Ticket'], axis=1, inplace=True)
+test_data.drop(['Cabin','Name', 'PassengerId', 'Sex', 'Embarked', 'Ticket'], axis=1, inplace=True)
 
 # will fill null values of feature by calculating average age of people resides in a Passenger class.
 def mean_age(col):
@@ -52,6 +56,7 @@ def cal_age(num):
 	return int(train_data[train_data['Pclass'] == num]['Age'].mean())
 
 train_data['Age'] = train_data[['Age', 'Pclass']].apply(mean_age, axis=1)
+test_data['Age'] = test_data[['Age', 'Pclass']].apply(mean_age, axis=1)
 
 # testing and training a model
 logmodel = LogisticRegression()
