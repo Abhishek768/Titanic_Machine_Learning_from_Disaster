@@ -33,7 +33,7 @@ train_data = pd.concat([train_data, sex, embarked], axis=1)
 # since we have semi-acceptance data as we have null values present.
 # Here we will clear and refine data
 # will drop cabin feature from train and test data as it contains many null values.
-train_data.drop(['Cabin','Name', 'PassengerId', 'Sex', 'Embarked'], axis=1, inplace=True)
+train_data.drop(['Cabin','Name', 'PassengerId', 'Sex', 'Embarked', 'Ticket'], axis=1, inplace=True)
 
 # will fill null values of feature by calculating average age of people resides in a Passenger class.
 def mean_age(col):
@@ -49,7 +49,25 @@ def mean_age(col):
 		return Age
 
 def cal_age(num):
-	return train_data[train_data['Pclass'] == num]['Age'].mean()
+	return int(train_data[train_data['Pclass'] == num]['Age'].mean())
 
 train_data['Age'] = train_data[['Age', 'Pclass']].apply(mean_age, axis=1)
+
+# testing and training a model
+logmodel = LogisticRegression()
+X = train_data.drop('Survived', axis=1)
+y = train_data['Survived']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=101)
+logmodel.fit(X_train,y_train)
+
+# prediction
+prediction = logmodel.predict(X_test)
+
+# evaluation
+# classification report
+print(classification_report(y_test, prediction))
+
+# confusion matrix
+print(confusion_matrix(y_test, prediction))
+
 plt.show()
